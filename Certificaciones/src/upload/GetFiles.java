@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-// GUI Components Libraries are imported
+// GUI Components Libraries are Imported
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -23,8 +23,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+// Import of Addition Classes
+import read.ReadFiles;
+
 public class GetFiles extends JFrame implements ActionListener {
 	
+	// Other Classes
+	private ReadFiles read = new ReadFiles();
 	// JFrame
 	private JFrame frame = new JFrame("Cargar Archivos");
 	// JButton
@@ -111,7 +116,14 @@ public class GetFiles extends JFrame implements ActionListener {
 		// Process Button
 		process_button = new JButton("Procesar");
 		list_panel.add(process_button);
-		process_button.addActionListener(this);
+		process_button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				read.getData(model);
+			}
+            
+		});
+		
 		if(fileListModel.isEmpty()) process_button.setEnabled(false);
 		
 		// Add Panels to Frame and Assign Them a Position
@@ -126,7 +138,8 @@ public class GetFiles extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-			
+		
+
 	}
 	
 }
