@@ -1,4 +1,4 @@
- /*
+/*
   *  This Class is made to import files from the computer and get the data from it
  */
 
@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 // GUI Components Libraries are Imported
 import javax.swing.BorderFactory;
@@ -51,9 +52,9 @@ public class GetFiles extends JFrame implements ActionListener {
 	public void UploadFiles() {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JFileChooser fc = new JFileChooser();
-        FileListAccessory accessory = new FileListAccessory(fc);
-        DefaultListModel model = accessory.getModel();
+        final JFileChooser fc = new JFileChooser();
+        final FileListAccessory accessory = new FileListAccessory(fc);
+        final DefaultListModel model = accessory.getModel();
 
         fileListModel = new DefaultListModel<>();
 		fileList = new JList(fileListModel);
@@ -119,7 +120,11 @@ public class GetFiles extends JFrame implements ActionListener {
 		process_button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				read.getData(model);
+				try {
+					read.readFiles(model);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
             
 		});

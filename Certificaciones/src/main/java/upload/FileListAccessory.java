@@ -55,7 +55,6 @@ public class FileListAccessory extends JComponent implements PropertyChangeListe
     private JButton createRemoveItemButton() {
         JButton button = new JButton("Remove");
         button.addActionListener(new ActionListener(){
-            @Override
             public void actionPerformed(ActionEvent e) {
                 removeFileFromList();
             }
@@ -63,7 +62,6 @@ public class FileListAccessory extends JComponent implements PropertyChangeListe
         return button;
     }
 
-    @Override
     public void propertyChange(PropertyChangeEvent e) {
         boolean update = false;
         String prop = e.getPropertyName();
