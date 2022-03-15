@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import javax.swing.DefaultListModel;
 
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
@@ -18,9 +19,17 @@ public class ReadFiles {
 	public void readFiles(DefaultListModel<File> model) throws IOException {
 		
 		// Start Reading the File
-			// model.getSize()
 		
-		XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(""));
+		// 1. Files
+		for(int i = 0; i < model.getSize(); i++) {
+			// Is Important to Know the # of Workbooks
+			XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(model.getElementAt(i).toString()));
+			// 2. Sheets Within Workbooks are Read
+			for(int j = 0; j < workbook.getNumberOfSheets(); i++) {
+				XSSFSheet sheet = workbook.getSheetAt(j);
+				System.out.println("hi");
+			}
+		}
 		
 	}
 
