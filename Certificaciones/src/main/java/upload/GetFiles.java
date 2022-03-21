@@ -120,11 +120,7 @@ public class GetFiles extends JFrame implements ActionListener {
 		process_button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					read.readFiles(model);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+			    read.WaitingUI(model);
 			}
             
 		});
@@ -140,7 +136,7 @@ public class GetFiles extends JFrame implements ActionListener {
 		frame.add(load_panel, BorderLayout.NORTH);
 		frame.add(list_panel, BorderLayout.CENTER);
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
