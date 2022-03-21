@@ -15,6 +15,8 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.compress.utils.FileNameUtils;
+
 public class FileListAccessory extends JComponent implements PropertyChangeListener {
 
     private File file = null;
@@ -43,7 +45,21 @@ public class FileListAccessory extends JComponent implements PropertyChangeListe
     }
 
     private void addFileToList() {
-        model.addElement(file);
+    	boolean isRepeated = false;
+    	String extension = FileNameUtils.getExtension(file.toString()); // Get the Extension Name
+    	
+    	// Accepts Supported file (EXCEL FILES ONLY)
+    	if(extension.equals("xls") || extension.equals("xlsm") || extension.equals("xlsm") || extension.equals("xml") || extension.equals("xlsx")) {
+    		// Avoid Repeated Files
+    		for(int i = 0; i < model.getSize(); i++) {
+        		if(model.getElementAt(i).toString() == file.toString()) {
+        			isRepeated = true;
+        			break;
+        		}
+        	}
+        	
+        	if(!isRepeated) model.addElement(file);
+        }	
     }
 
     private void removeFileFromList() {
