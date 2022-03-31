@@ -52,7 +52,7 @@ public class FileListAccessory extends JComponent implements PropertyChangeListe
     	if(extension.equals("xls") || extension.equals("xlsm") || extension.equals("xml") || extension.equals("xlsx")) {
     		// Avoid Repeated Files
     		for(int i = 0; i < model.getSize(); i++) {
-        		if(model.getElementAt(i).toString() == file.toString()) {
+        		if(model.getElementAt(i).toString().equals(file.toString())) {
         			isRepeated = true;
         			break;
         		}
