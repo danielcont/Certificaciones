@@ -49,7 +49,7 @@ public class FileListAccessory extends JComponent implements PropertyChangeListe
     	String extension = FileNameUtils.getExtension(file.toString()); // Get the Extension Name
     	
     	// Accepts Supported file (EXCEL FILES ONLY)
-    	if(extension.equals("xls") || extension.equals("xlsm") || extension.equals("xml") || extension.equals("xlsx")) {
+    	if(extension.equals("xls") || extension.equals("xlsm") || extension.equals("xml") || extension.equals("xlsx") || extension.equals("csv")) {
     		// Avoid Repeated Files
     		for(int i = 0; i < model.getSize(); i++) {
         		if(model.getElementAt(i).toString().equals(file.toString())) {
