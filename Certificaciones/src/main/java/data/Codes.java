@@ -8,13 +8,15 @@ import java.util.ArrayList;
 
 public class Codes {
 	String code_Codes; // Código de la Materia
-	String subjectName_Codes; // Nombre de la Actifidad Fundamental a Revisar
-	ArrayList<String> outcomes_Codes;
+	String subjectName_Codes; // Nombre de la Materia
+	String assignment_Codes; // Actividad Fundamental a revisar
+	ArrayList<String> outcomes_Codes; // List of Outcomes
 	
-	public Codes(String code_Codes, String subjectName_Codes, ArrayList<String> outcomes_Codes) {
+	public Codes(String code_Codes, String subjectName_Codes, String assignment_Codes, ArrayList<String> outcomes_Codes) {
 		super();
 		this.code_Codes = code_Codes;
 		this.subjectName_Codes = subjectName_Codes;
+		this.assignment_Codes = assignment_Codes;
 		this.outcomes_Codes = outcomes_Codes;
 	}
 
@@ -34,6 +36,13 @@ public class Codes {
 		this.subjectName_Codes = subjectName_Codes;
 	}
 
+	public String getAssignment_Codes() {
+		return assignment_Codes;
+	}
+
+	public void setAssignment_Codes(String Assignment_Codes) {
+		this.assignment_Codes = Assignment_Codes;
+	}
 	public ArrayList<String> getOutcomes_Codes() {
 		return outcomes_Codes;
 	}
