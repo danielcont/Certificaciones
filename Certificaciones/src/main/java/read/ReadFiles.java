@@ -33,7 +33,7 @@ import excel.GenerateFile;
 public class ReadFiles {	
 	
 	// Other Classes
-	//private GenerateFile generateReport = new GenerateFile();
+	private GenerateFile generateReport = new GenerateFile();
 	private ArrayList<Codes> items = new ArrayList<Codes>(); // Array where all Outcomes instances will be stored
 	private ArrayList<DataOC> itemsStudents = new ArrayList<DataOC>(); // Array where all data from Students instances will be stored
 
@@ -224,7 +224,7 @@ public class ReadFiles {
 	    	switch(oc) {
 	    		case 1:
 					ReadFiles(model);
-			    	//generateReport.CreateExcelFile(items, itemsStudents);
+			    	generateReport.CreateExcelFile(items, itemsStudents);
 					break;
 	    		case 2:
 					OutcomesList(model);
