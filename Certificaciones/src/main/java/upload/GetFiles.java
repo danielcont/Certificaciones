@@ -16,6 +16,7 @@ import java.io.File;
 // GUI Components Libraries are Imported
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -38,6 +39,8 @@ public class GetFiles extends JFrame implements ActionListener {
 	private ReadFiles read = new ReadFiles();
 	// JFrame
 	private JFrame frame = new JFrame("Generador de Reportes");
+	// JFrame Icon
+	private ImageIcon icon = new ImageIcon("C:\\Users\\contr\\OneDrive\\Documents\\FIME\\Ene-Dic2022\\FIME-icon.png");
 	// JTabbedPane
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	// JLabel
@@ -63,7 +66,6 @@ public class GetFiles extends JFrame implements ActionListener {
 	// GUI
 	public void UploadFiles() {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 
 		Boolean old = UIManager.getBoolean("FileChooser.readOnly");
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
@@ -233,6 +235,7 @@ public class GetFiles extends JFrame implements ActionListener {
 		frame.setSize(385, 365);
 		frame.setMinimumSize(new Dimension(385, 365));
 		frame.setLocationRelativeTo(null);
+		frame.setIconImage(icon.getImage());
 		
 		// TabbedPanes
 		assignments_panel = new JPanel() {
