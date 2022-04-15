@@ -14,7 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -22,7 +22,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -73,8 +72,21 @@ public class GenerateFile extends JFrame {
 		// Create Sheets
 		for(int i = 0; i < 7; i++) {
 			XSSFSheet spreadsheet = workbook.createSheet("Outcome " + (i + 1));
+			
 			int totalRows = 18; // Total of rows for ABET report
-			Dictionary<String, String> outcomeData = reportData.AllOutcomesData.get(i);
+			Map<String, String> outcomeData = reportData.AllOutcomesData.get(i);
+
+			int assignmentsTotal = 0;
+			for(DataOC a: studentsData) {
+				for(int x = 0; x < a.getOutcomes_DataOC().size(); x ++) {
+					for(String key : outcomeData.keySet()) {
+						if(a.getOutcomes_DataOC().get(x).equals(key)) {
+							assignmentsTotal ++;
+						}
+						
+					}
+				}
+			}
 			
 			// Iterate over Rows
 			for(int currentRow = 0; currentRow <= totalRows; currentRow++) {
@@ -82,7 +94,7 @@ public class GenerateFile extends JFrame {
 				Row row = spreadsheet.createRow(currentRow);
 				Cell cell;
 				
-				if(currentRow == 1) {
+				if(currentRow == 1) { // Main Outcome data is added
 					cell = row.createCell(1);
 					cell.setCellValue("ABET \nOutcome");
 
@@ -95,20 +107,23 @@ public class GenerateFile extends JFrame {
 					cell.setCellStyle(combinedCoral);
 					
 					cell = row.createCell(3);
-					cell.setCellValue(outcomeData.get("0"));
+					cell.setCellValue(outcomeData.get("Outcome " + (i + 1))); // Outcome General data is set
+					
+					int nos = ((outcomeData.size() - 1) * 5) + assignmentsTotal;
 					
 					spreadsheet.addMergedRegion(new CellRangeAddress(
-					        1, //first row
-					        1, //last row
-					        3, //first column
-					        15  //last column
+					        1, // first row
+					        1, // last row
+					        3, // first column
+					        nos + 2 // last column
 					));
 					cell.setCellStyle(combinedBlue);
 					
-					row.setHeightInPoints((4*spreadsheet.getDefaultRowHeightInPoints()));
-				} else if(currentRow == 2) {
+					row.setHeightInPoints((3 * spreadsheet.getDefaultRowHeightInPoints()));
+					
+				} else if(currentRow == 2) { // Suboutcome data is added
 					cell = row.createCell(1);
-					cell.setCellValue("The student will be \nable to");
+					cell.setCellValue("The student will be able to");
 
 					spreadsheet.addMergedRegion(new CellRangeAddress(
 					        2, // first row
@@ -117,16 +132,62 @@ public class GenerateFile extends JFrame {
 					        2  // last column
 					));
 					cell.setCellStyle(combinedCoral);
+
 					
-					/*
-					spreadsheet.addMergedRegion(new CellRangeAddress(
-					        1, //first row
-					        1, //last row
-					        1, //first column
-					        2  //last column
-					));*/
+					int lastColumnOutcome = 3; // APROVECHAR
+					Row row_results = spreadsheet.createRow(3);
+					for(Map.Entry<String, String> subOutcomes : outcomeData.entrySet()) {
+						if(!subOutcomes.getKey().equals("Outcome " + (i + 1))) {
+							cell = row.createCell(lastColumnOutcome);
+							cell.setCellValue(subOutcomes.getValue());
+							
+							int subjectCount = 0;
+
+							if(spreadsheet.getRow(3) == null) ;
+							Cell cell_results;
+							
+							Row row_results_data;
+							Cell cell_results_data;
+							
+							for(DataOC a: studentsData) {
+								for(int x = 0; x < a.getOutcomes_DataOC().size(); x ++) {
+									if(a.getOutcomes_DataOC().get(x).equals(subOutcomes.getKey())) {
+										int newCell = lastColumnOutcome + 2 + subjectCount;
+										
+										cell_results = row_results.createCell(newCell);
+										cell_results.setCellValue(a.getCode_DataOC() + " " + a.getAssignment_DataOC());
+										cell_results.setCellStyle(combinedBlue);
+										System.out.println("hi");
+
+										subjectCount ++;
+										/*
+										for(int idk = 4; idk <= 8; idk ++) { // 'idk' represents rows and iterates within the same column
+											if(spreadsheet.getRow(idk) != null) row_results_data = spreadsheet.createRow(idk);
+											
+											cell_results_data = spreadsheet.getRow(idk).createCell(a.getStudentsEX_DataOC());
+											cell_results_data.setCellValue(100);
+											
+										}*/
+										
+									}
+								}
+							}
+							
+							
+							spreadsheet.addMergedRegion(new CellRangeAddress(
+							        2, // first row
+							        2, // last row
+							        lastColumnOutcome, // first column
+							        lastColumnOutcome + subjectCount + 4 // last column
+							));
+							cell.setCellStyle(multipleLines);
+							lastColumnOutcome += subjectCount + 5;
+						}
+						
+					}
 
 					row.setHeightInPoints((4*spreadsheet.getDefaultRowHeightInPoints()));
+					
 				} else if (currentRow >= 3) {
 					
 				}
@@ -174,7 +235,6 @@ public class GenerateFile extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				Desktop desktop = Desktop.getDesktop();
 				try {
-					System.out.println("File Clicked");
 					desktop.open(generatedFile);
 				} catch (IOException e1) {
 					e1.printStackTrace();
