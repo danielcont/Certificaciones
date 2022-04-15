@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -73,7 +75,7 @@ public class GenerateFile extends JFrame {
 		for(int i = 0; i < 7; i++) {
 			XSSFSheet spreadsheet = workbook.createSheet("Outcome " + (i + 1));
 			
-			int totalRows = 18; // Total of rows for ABET report
+			int totalRows = 2; // Total of rows for ABET report
 			Map<String, String> outcomeData = reportData.AllOutcomesData.get(i);
 
 			int assignmentsTotal = 0;
@@ -134,45 +136,50 @@ public class GenerateFile extends JFrame {
 					cell.setCellStyle(combinedCoral);
 
 					
-					int lastColumnOutcome = 3; // APROVECHAR
-					Row row_results = spreadsheet.createRow(3);
+					int lastColumnOutcome = 3;
+					Row rowResults = null;
+					if(spreadsheet.getRow(3) == null) rowResults = spreadsheet.createRow(3);
+					Cell cellResults;
+					
 					for(Map.Entry<String, String> subOutcomes : outcomeData.entrySet()) {
 						if(!subOutcomes.getKey().equals("Outcome " + (i + 1))) {
 							cell = row.createCell(lastColumnOutcome);
 							cell.setCellValue(subOutcomes.getValue());
 							
 							int subjectCount = 0;
-
-							if(spreadsheet.getRow(3) == null) ;
-							Cell cell_results;
-							
-							Row row_results_data;
-							Cell cell_results_data;
 							
 							for(DataOC a: studentsData) {
 								for(int x = 0; x < a.getOutcomes_DataOC().size(); x ++) {
 									if(a.getOutcomes_DataOC().get(x).equals(subOutcomes.getKey())) {
-										int newCell = lastColumnOutcome + 2 + subjectCount;
 										
-										cell_results = row_results.createCell(newCell);
-										cell_results.setCellValue(a.getCode_DataOC() + " " + a.getAssignment_DataOC());
-										cell_results.setCellStyle(combinedBlue);
-										System.out.println("hi");
-
+										cellResults = rowResults.createCell(lastColumnOutcome + 2 + subjectCount);
+										cellResults.setCellValue(a.getCode_DataOC() + " " + a.getSubject_DataOC());
+										cellResults.setCellStyle(combinedBlue);
+										
+										for(int idk = 4; idk <= 8; idk ++) {
+											if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
+											
+											cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + 2 + subjectCount);
+											if(idk != 8) {
+												cellResults.setCellValue(a.getStudentsScore_DataOC()[idk - 4]);
+											} else {
+												cellResults.setCellValue(Arrays.stream(a.getStudentsScore_DataOC()).sum());
+											}
+										}
+										
 										subjectCount ++;
-										/*
-										for(int idk = 4; idk <= 8; idk ++) { // 'idk' represents rows and iterates within the same column
-											if(spreadsheet.getRow(idk) != null) row_results_data = spreadsheet.createRow(idk);
-											
-											cell_results_data = spreadsheet.getRow(idk).createCell(a.getStudentsEX_DataOC());
-											cell_results_data.setCellValue(100);
-											
-										}*/
-										
 									}
 								}
+								
+								cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 2);
+								cellResults.setCellValue("TOTAL");
+								cellResults.setCellStyle(combinedBlue);
+								
+
+								cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 3);
+								cellResults.setCellValue("%");
+								cellResults.setCellStyle(combinedBlue);
 							}
-							
 							
 							spreadsheet.addMergedRegion(new CellRangeAddress(
 							        2, // first row
@@ -187,11 +194,9 @@ public class GenerateFile extends JFrame {
 					}
 
 					row.setHeightInPoints((4*spreadsheet.getDefaultRowHeightInPoints()));
-					
-				} else if (currentRow >= 3) {
+					rowResults.setHeightInPoints((4*spreadsheet.getDefaultRowHeightInPoints()));
 					
 				}
-				
 			}
 		}
 		
