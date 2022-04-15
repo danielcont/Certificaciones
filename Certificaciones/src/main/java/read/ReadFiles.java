@@ -59,10 +59,8 @@ public class ReadFiles {
 	    	String subject = ""; // Nombre de la Materia
 	    	String assignment = "";  // Número de la Actifidad Fundamental a Revisar
 	    	ArrayList<String> outcomes = null; // Lista de Outcomes
-	    	int studentsEX = 0; // Número de Estudiantes con calificación Ex
-	    	int studentsG = 0; // Número de Estudiantes con calificación G
-	    	int studentsA = 0; // Número de Estudiantes con calificación A
-	    	int studentsNS = 0; // Número de Estudiantes con calificación NS; // Número de Estudiantes
+	    	int[] scoreList = {0, 0, 0, 0}; // Número de Estudiantes con su calificación; 
+	    	int alumns = 0;// Número de Estudiantes
 	    	float average = 0; // Promedio General de calificaciones
 	        
 	        int row = 0; // Variable to identify Rows
@@ -94,26 +92,28 @@ public class ReadFiles {
 	        		}
 	        		
 	        	} else if(row >= 1 && arr[0].replaceAll("^\"|\"$", "").equals("") && !arr[column_assignment].replaceAll("^\"|\"$", "").equals("")) {
-	        		int grade = Integer.parseInt(arr[column_assignment].replaceAll("^\"|\"$", ""));
+	        		int score = Integer.parseInt(arr[column_assignment].replaceAll("^\"|\"$", ""));
 	        		
-	        		if(grade >= 90) {
-	        			studentsEX ++;
-	        		} else if(grade >= 80 && grade <= 89) {
-	        			studentsG ++;
-	        		} else if(grade >= 70 && grade <= 79) {
-	        			studentsA ++;
-	        		} else if(grade <= 69) {
-	        			studentsNS ++;
+	        		if(score >= 90) {
+	        			scoreList[0] += 1;
+	        		} else if(score >= 80 && score <= 89) {
+	        			scoreList[1] += 1;
+	        		} else if(score >= 70 && score <= 79) {
+	        			scoreList[2] += 1;
+	        		} else if(score <= 69) {
+	        			scoreList[3] += 1;
 	        		}
 	        		
-	        		average += grade;
+	        		average += score;
+	        		alumns ++;
 	        		hasContent = true;
 	        	}
 	        	row ++;
 	        }
 	        
+	        average /= alumns;
 			//if(hasContent) {
-				DataOC dataOC = new DataOC(certif, code, subject, assignment, outcomes, studentsEX, studentsG, studentsA, studentsNS, average);
+				DataOC dataOC = new DataOC(certif, code, subject, assignment, outcomes, scoreList, alumns, average);
 				itemsStudents.add(dataOC);
 			//}
 			
