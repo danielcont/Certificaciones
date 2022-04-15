@@ -119,10 +119,10 @@ public class ReadFiles {
 			
 		}
 
-		for(DataOC b: itemsStudents) {
+		/*for(DataOC b: itemsStudents) {
 			System.out.println(b.getCode_DataOC() + "  " + b.getAssignment_DataOC() + "\t\t" + b.getStudentsEX_DataOC() + "  " + b.getStudentsG_DataOC() + "  " 
 					+ b.getStudentsA_DataOC() + "  " + b.getStudentsNS_DataOC() + "\t");
-		}
+		}*/
 		
 	}
 	
@@ -153,7 +153,6 @@ public class ReadFiles {
 				boolean hasContent = false;
 				while(cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
-					
 					// Check the cell type and format accordingly
 					switch(cell.getCellType()) {
 						case NUMERIC:
@@ -163,15 +162,23 @@ public class ReadFiles {
 							break;
 						case STRING:
 							// Validate if this File format is correct.
-							if(cell.getRowIndex() == 0 && cell.getColumnIndex() <= 8
+							if(cell.getRowIndex() == 0 && cell.getColumnIndex() <= 16
 									&& !(cell.getStringCellValue().equals("Unidades de Aprendizaje") 
-												|| cell.getStringCellValue().equals("Outcome 1")
-												|| cell.getStringCellValue().equals("Outcome 2")
-												|| cell.getStringCellValue().equals("Outcome 3")
-												|| cell.getStringCellValue().equals("Outcome 4")
-												|| cell.getStringCellValue().equals("Outcome 5")
-												|| cell.getStringCellValue().equals("Outcome 6")
-												|| cell.getStringCellValue().equals("Outcome 7")
+												|| cell.getStringCellValue().equals("Outcome 1.1")
+												|| cell.getStringCellValue().equals("Outcome 1.2")
+												|| cell.getStringCellValue().equals("Outcome 1.3")
+												|| cell.getStringCellValue().equals("Outcome 1.4")
+												|| cell.getStringCellValue().equals("Outcome 2.1")
+												|| cell.getStringCellValue().equals("Outcome 3.1")
+												|| cell.getStringCellValue().equals("Outcome 3.2")
+												|| cell.getStringCellValue().equals("Outcome 3.3")
+												|| cell.getStringCellValue().equals("Outcome 3.4")
+												|| cell.getStringCellValue().equals("Outcome 4.1")
+												|| cell.getStringCellValue().equals("Outcome 5.1")
+												|| cell.getStringCellValue().equals("Outcome 5.2")
+												|| cell.getStringCellValue().equals("Outcome 6.1")
+												|| cell.getStringCellValue().equals("Outcome 7.1")
+												|| cell.getStringCellValue().equals("Outcome 7.2")
 												|| cell.getStringCellValue().equals("Actividad Fun."))) {
 								System.out.print(cell.getStringCellValue());
 								throw new Exception(); // The format is not correct
@@ -184,7 +191,7 @@ public class ReadFiles {
 									hasContent = true;
 								}
 								// Get the Assignment
-								if(cell.getColumnIndex() == 8) {
+								if(cell.getColumnIndex() == 16) {
 									retrieve_assignment = cell.getStringCellValue();
 								}
 							}
