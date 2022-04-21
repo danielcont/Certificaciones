@@ -14,6 +14,8 @@ public class ReportData {
 	Map<String, String> ABET6 = new LinkedHashMap<String, String>();
 	Map<String, String> ABET7 = new LinkedHashMap<String, String>();
 	
+	Map<String, String> ABETscore= new LinkedHashMap<String, String>();
+	
 	public void ABETData() {
 	
 	// ABET Outcome 1 Information
@@ -89,6 +91,11 @@ public class ReportData {
 	AllOutcomesData.add(ABET5);
 	AllOutcomesData.add(ABET6);
 	AllOutcomesData.add(ABET7);
+	
+	ABETscore.put("0", "90-100 (Ex)");
+	ABETscore.put("1", "80-89 (G)");
+	ABETscore.put("2", "70-79 (A)");
+	ABETscore.put("3", "0-70 (NS)");
 	
 	}
 	
