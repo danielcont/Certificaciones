@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -22,20 +23,24 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import data.Codes;
 import data.DataOC;
 
+@SuppressWarnings("serial")
 public class GenerateFile extends JFrame {
 	// Other Classes
 	private ReportData reportData = new ReportData();
@@ -44,36 +49,58 @@ public class GenerateFile extends JFrame {
 	// JFrame Icon
 	private ImageIcon icon = new ImageIcon("C:\\Users\\contr\\OneDrive\\Documents\\FIME\\Ene-Dic2022\\FIME-icon.png");
 	
+	@SuppressWarnings("unchecked")
 	public void CreateExcelFile(ArrayList<Codes> outcomeCodes, ArrayList<DataOC> studentsData)  throws Exception{
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
 		reportData.ABETData();
 		
+		// Set Cell Borders
+		CellStyle borders = workbook.createCellStyle();
+		borders.setBorderBottom(BorderStyle.MEDIUM);
+		borders.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+		borders.setBorderLeft(BorderStyle.MEDIUM);
+		borders.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+		borders.setBorderTop(BorderStyle.MEDIUM);
+		borders.setTopBorderColor(IndexedColors.BLACK.getIndex());
+		borders.setBorderRight(BorderStyle.MEDIUM);
+		borders.setRightBorderColor(IndexedColors.BLACK.getIndex());
+		
 		// Enable new lines within Cells
 		CellStyle multipleLines = workbook.createCellStyle();
+		multipleLines.cloneStyleFrom(borders);
 		multipleLines.setWrapText(true);
 		
+		// Cell alignment
+		CellStyle alignment = workbook.createCellStyle();
+		alignment.cloneStyleFrom(multipleLines);
+		alignment.setAlignment(HorizontalAlignment.CENTER);
+		alignment.setVerticalAlignment(VerticalAlignment.CENTER);
+		
 		// Set background - grey color
-		CellStyle bgBlue = workbook.createCellStyle();
-		bgBlue.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.index);
-		bgBlue.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		CellStyle bgGrey = workbook.createCellStyle();
+		bgGrey.cloneStyleFrom(alignment);
+		bgGrey.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+		bgGrey.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
 		// Set background - green color
-		CellStyle bgCoral = workbook.createCellStyle();
-		bgCoral.setFillForegroundColor(IndexedColors.TAN.index);
-		bgCoral.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		CellStyle bgLime = workbook.createCellStyle();
+		bgLime.cloneStyleFrom(alignment);
+		bgLime.setFillForegroundColor(IndexedColors.LIME.index);
+		bgLime.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		
-		CellStyle combinedBlue = workbook.createCellStyle();
-		combinedBlue.cloneStyleFrom(bgBlue);
-		combinedBlue.setWrapText(true);
+		CellStyle combinedGrey = workbook.createCellStyle();
+		combinedGrey.cloneStyleFrom(bgGrey);
+		combinedGrey.setWrapText(true);
 		
-		CellStyle combinedCoral = workbook.createCellStyle();
-		combinedCoral.cloneStyleFrom(bgCoral);
-		combinedCoral.setWrapText(true);
+		CellStyle combinedLime = workbook.createCellStyle();
+		combinedLime.cloneStyleFrom(bgLime);
+		combinedLime.setWrapText(true);
 		
 		// Create Sheets
 		for(int i = 0; i < 7; i++) {
 			XSSFSheet spreadsheet = workbook.createSheet("Outcome " + (i + 1));
+			spreadsheet.setDefaultColumnWidth(16);
 			
 			int totalRows = 2; // Total of rows for ABET report
 			Map<String, String> outcomeData = reportData.AllOutcomesData.get(i);
@@ -98,43 +125,31 @@ public class GenerateFile extends JFrame {
 				Cell cell;
 				
 				if(currentRow == 1) { // Main Outcome data is added
-					cell = row.createCell(1);
+					cell = row.createCell(currentRow);
 					cell.setCellValue("ABET \nOutcome");
 
-					spreadsheet.addMergedRegion(new CellRangeAddress(
-					        1, // first row
-					        1, // last row
-					        1, // first column
-					        2  // last column
-					));
-					cell.setCellStyle(combinedCoral);
+					CellRangeAddress cellRangeAddress = new CellRangeAddress(1, 1, 1, 2);
+					spreadsheet.addMergedRegion(cellRangeAddress);
+					cell.setCellStyle(combinedLime);
 					
 					cell = row.createCell(3);
 					cell.setCellValue(outcomeData.get("Outcome " + (i + 1))); // Outcome General data is set
 					
 					int nos = ((outcomeData.size() - 1) * 5) + assignmentsTotal;
 					
-					spreadsheet.addMergedRegion(new CellRangeAddress(
-					        1, // first row
-					        1, // last row
-					        3, // first column
-					        nos + 2 // last column
-					));
-					cell.setCellStyle(combinedBlue);
+					CellRangeAddress outcomeRangeAddress = new CellRangeAddress(1, 1, 3, nos + 2);
+					spreadsheet.addMergedRegion(outcomeRangeAddress);
+					cell.setCellStyle(combinedGrey);
 					
 					row.setHeightInPoints((3 * spreadsheet.getDefaultRowHeightInPoints()));
 					
 				} else if(currentRow == 2) { // Suboutcome data is added
 					cell = row.createCell(1);
-					cell.setCellValue("The student will be able to");
+					cell.setCellValue("The student \nwill be able to");
 
-					spreadsheet.addMergedRegion(new CellRangeAddress(
-					        2, // first row
-					        2, // last row
-					        1, // first column
-					        2  // last column
-					));
-					cell.setCellStyle(combinedCoral);
+					CellRangeAddress cellRangeAddress = new CellRangeAddress(2, 2, 1, 2);
+					spreadsheet.addMergedRegion(cellRangeAddress);
+					cell.setCellStyle(combinedLime);
 
 					
 					int lastColumnOutcome = 3;
@@ -155,7 +170,7 @@ public class GenerateFile extends JFrame {
 										
 										cellResults = rowResults.createCell(lastColumnOutcome + 2 + subjectCount);
 										cellResults.setCellValue(a.getCode_DataOC() + " " + a.getSubject_DataOC());
-										cellResults.setCellStyle(combinedBlue);
+										cellResults.setCellStyle(combinedGrey);
 										
 										for(int idk = 4; idk <= 8; idk ++) {
 											if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
@@ -163,12 +178,15 @@ public class GenerateFile extends JFrame {
 											cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + 2 + subjectCount);
 											if(idk != 8) {
 												cellResults.setCellValue(a.getStudentsScore_DataOC()[idk - 4]);
+												cellResults.setCellStyle(borders);
 												
 												String e2 = Integer.toString(idk - 4);
 												cellScore = spreadsheet.getRow(idk).createCell(lastColumnOutcome + 1);
 												cellScore.setCellValue(ABETscore.get(e2));
+												cellScore.setCellStyle(borders);
 											} else {
 												cellResults.setCellValue(a.getTotalStudents_DataOC());
+												cellResults.setCellStyle(borders);
 											}
 										}
 										
@@ -179,7 +197,7 @@ public class GenerateFile extends JFrame {
 								if(subjectCount != 0) {
 									cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 2);
 									cellResults.setCellValue("TOTAL");
-									cellResults.setCellStyle(combinedBlue);
+									cellResults.setCellStyle(combinedGrey);
 									
 									for(int idk = 4; idk <= 8; idk ++) {
 										if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
@@ -207,26 +225,24 @@ public class GenerateFile extends JFrame {
 										}
 										
 										cellResults.setCellFormula(SUM);
+										cellResults.setCellStyle(borders);
+										if(idk == 8) cellResults.setCellStyle(bgLime);
 										
 										cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + subjectCount + 3);
 										
 										cellResults.setCellFormula(PCTG);
+										cellResults.setCellStyle(borders);
 									}
 									
 									
 									cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 3);
 									cellResults.setCellValue("%");
-									cellResults.setCellStyle(combinedBlue);
+									cellResults.setCellStyle(combinedGrey);
 								}
 							}
 							
-							spreadsheet.addMergedRegion(new CellRangeAddress(
-							        2, // first row
-							        2, // last row
-							        lastColumnOutcome, // first column
-							        lastColumnOutcome + subjectCount + 4 // last column
-							));
-							cell.setCellStyle(multipleLines);
+							spreadsheet.addMergedRegion(new CellRangeAddress(2, 2, lastColumnOutcome, lastColumnOutcome + subjectCount + 4));
+							cell.setCellStyle(alignment);
 							lastColumnOutcome += subjectCount + 5;
 						}
 						
@@ -237,6 +253,16 @@ public class GenerateFile extends JFrame {
 					
 				}
 			}
+			
+			
+			List<CellRangeAddress> mergedRegions = spreadsheet.getMergedRegions();
+			for (CellRangeAddress rangeAddress : mergedRegions) {
+			    RegionUtil.setBorderTop(BorderStyle.MEDIUM, rangeAddress, spreadsheet);
+			    RegionUtil.setBorderLeft(BorderStyle.MEDIUM, rangeAddress, spreadsheet);
+			    RegionUtil.setBorderRight(BorderStyle.MEDIUM, rangeAddress, spreadsheet);
+			    RegionUtil.setBorderBottom(BorderStyle.MEDIUM, rangeAddress, spreadsheet);
+			}
+
 		}
 		
 		// Create unique file name
