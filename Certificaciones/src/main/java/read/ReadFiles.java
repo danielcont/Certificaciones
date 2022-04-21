@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,7 +28,6 @@ import data.Codes;
 import data.DataOC;
 import excel.GenerateFile;
 
-
 public class ReadFiles {	
 	
 	// Other Classes
@@ -37,7 +35,7 @@ public class ReadFiles {
 	private ArrayList<Codes> items = new ArrayList<Codes>(); // Array where all Outcomes instances will be stored
 	private ArrayList<DataOC> itemsStudents = new ArrayList<DataOC>(); // Array where all data from Students instances will be stored
 
-	private void ReadFiles(DefaultListModel<File> modelOutcomes) throws IOException {
+	private void ReadExcelFiles(DefaultListModel<File> modelOutcomes) throws IOException {
 		// Start Reading the File
 
 		// 1. Files
@@ -112,10 +110,10 @@ public class ReadFiles {
 	        }
 	        
 	        average /= alumns;
-			//if(hasContent) {
+			if(hasContent) {
 				DataOC dataOC = new DataOC(certif, code, subject, assignment, outcomes, scoreList, alumns, average);
 				itemsStudents.add(dataOC);
-			//}
+			}
 			
 		}
 
@@ -135,7 +133,6 @@ public class ReadFiles {
 		// 2. Sheets Within Workbooks are Read
 		for(int j = 0; j < workbook.getNumberOfSheets(); j++) {
 			XSSFSheet sheet = workbook.getSheetAt(j);
-			int count = 0;
 			
 			// Iterate through each rows one by one
 			Iterator<Row> rowIterator = sheet.iterator();
@@ -230,7 +227,7 @@ public class ReadFiles {
 		try {
 	    	switch(oc) {
 	    		case 1:
-					ReadFiles(model);
+					ReadExcelFiles(model);
 			    	generateReport.CreateExcelFile(items, itemsStudents);
 					break;
 	    		case 2:

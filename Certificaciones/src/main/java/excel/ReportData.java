@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ReportData {
+	@SuppressWarnings("rawtypes")
 	ArrayList<Map> AllOutcomesData = new ArrayList<Map>();
 	Map<String, String> ABET1 = new LinkedHashMap<String, String>();
 	Map<String, String> ABET2 = new LinkedHashMap<String, String>();

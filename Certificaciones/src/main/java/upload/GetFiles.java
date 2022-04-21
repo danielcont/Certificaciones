@@ -33,6 +33,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 // Import of Addition Classes
 import read.ReadFiles;
 
+@SuppressWarnings("serial")
 public class GetFiles extends JFrame implements ActionListener {
 	
 	// Other Classes
@@ -64,6 +65,7 @@ public class GetFiles extends JFrame implements ActionListener {
 	}
 	
 	// GUI
+	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
 	public void UploadFiles() {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

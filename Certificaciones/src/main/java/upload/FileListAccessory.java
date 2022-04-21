@@ -17,14 +17,15 @@ import javax.swing.border.EmptyBorder;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 
+@SuppressWarnings({ "rawtypes", "serial", "unchecked" })
 public class FileListAccessory extends JComponent implements PropertyChangeListener {
 
     private File file = null;
     private DefaultListModel model;
-    private JList list;
+	private JList list;
     private JButton removeItem;
 
-    public FileListAccessory(JFileChooser chooser) {
+	public FileListAccessory(JFileChooser chooser) {
         chooser.addPropertyChangeListener(this);
 
         model = new DefaultListModel();
