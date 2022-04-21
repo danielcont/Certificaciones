@@ -13,10 +13,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
-import java.util.stream.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -30,6 +28,8 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -77,6 +77,7 @@ public class GenerateFile extends JFrame {
 			
 			int totalRows = 2; // Total of rows for ABET report
 			Map<String, String> outcomeData = reportData.AllOutcomesData.get(i);
+			Map<String, String> ABETscore = reportData.ABETscore;
 
 			int assignmentsTotal = 0;
 			for(DataOC a: studentsData) {
@@ -139,7 +140,7 @@ public class GenerateFile extends JFrame {
 					int lastColumnOutcome = 3;
 					Row rowResults = null;
 					if(spreadsheet.getRow(3) == null) rowResults = spreadsheet.createRow(3);
-					Cell cellResults;
+					Cell cellResults, cellScore;
 					
 					for(Map.Entry<String, String> subOutcomes : outcomeData.entrySet()) {
 						if(!subOutcomes.getKey().equals("Outcome " + (i + 1))) {
@@ -162,8 +163,12 @@ public class GenerateFile extends JFrame {
 											cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + 2 + subjectCount);
 											if(idk != 8) {
 												cellResults.setCellValue(a.getStudentsScore_DataOC()[idk - 4]);
+												
+												String e2 = Integer.toString(idk - 4);
+												cellScore = spreadsheet.getRow(idk).createCell(lastColumnOutcome + 1);
+												cellScore.setCellValue(ABETscore.get(e2));
 											} else {
-												cellResults.setCellValue(Arrays.stream(a.getStudentsScore_DataOC()).sum());
+												cellResults.setCellValue(a.getTotalStudents_DataOC());
 											}
 										}
 										
@@ -171,14 +176,48 @@ public class GenerateFile extends JFrame {
 									}
 								}
 								
-								cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 2);
-								cellResults.setCellValue("TOTAL");
-								cellResults.setCellStyle(combinedBlue);
-								
-
-								cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 3);
-								cellResults.setCellValue("%");
-								cellResults.setCellStyle(combinedBlue);
+								if(subjectCount != 0) {
+									cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 2);
+									cellResults.setCellValue("TOTAL");
+									cellResults.setCellStyle(combinedBlue);
+									
+									for(int idk = 4; idk <= 8; idk ++) {
+										if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
+										
+										String SUM = "";
+										String PCTG = "";
+										cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + subjectCount + 2);
+										
+										CellReference start = new CellReference(idk, lastColumnOutcome + 2);
+										CellReference end = new CellReference(idk, lastColumnOutcome + subjectCount + 1);
+										
+										CellReference startTotal = new CellReference(8, lastColumnOutcome + 2);
+										CellReference endTotal = new CellReference(8, lastColumnOutcome + subjectCount + 1);
+										
+										if(start.formatAsString().equals(end.formatAsString())) {
+											SUM = "SUM(" + start.formatAsString() + ")";
+											
+											PCTG = "(SUM(" + start.formatAsString() + ")/SUM(" + 
+													startTotal.formatAsString() + "))*100";
+										} else {
+											SUM = "SUM(" + start.formatAsString() + ":" + end.formatAsString() + ")";
+											
+											PCTG = "(SUM(" + start.formatAsString() + ":" + end.formatAsString() + ")/SUM(" + 
+													startTotal.formatAsString() + ":" + endTotal.formatAsString() + "))*100";
+										}
+										
+										cellResults.setCellFormula(SUM);
+										
+										cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + subjectCount + 3);
+										
+										cellResults.setCellFormula(PCTG);
+									}
+									
+									
+									cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 3);
+									cellResults.setCellValue("%");
+									cellResults.setCellStyle(combinedBlue);
+								}
 							}
 							
 							spreadsheet.addMergedRegion(new CellRangeAddress(
