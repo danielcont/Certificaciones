@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,6 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -65,7 +65,7 @@ public class GenerateFile extends JFrame {
 		borders.setTopBorderColor(IndexedColors.BLACK.getIndex());
 		borders.setBorderRight(BorderStyle.MEDIUM);
 		borders.setRightBorderColor(IndexedColors.BLACK.getIndex());
-		
+
 		// Enable new lines within Cells
 		CellStyle multipleLines = workbook.createCellStyle();
 		multipleLines.cloneStyleFrom(borders);
@@ -96,6 +96,8 @@ public class GenerateFile extends JFrame {
 		CellStyle combinedLime = workbook.createCellStyle();
 		combinedLime.cloneStyleFrom(bgLime);
 		combinedLime.setWrapText(true);
+
+		Map<String, String> PCTGscore = new LinkedHashMap<String, String>();
 		
 		// Create Sheets
 		for(int i = 0; i < 7; i++) {
@@ -193,45 +195,48 @@ public class GenerateFile extends JFrame {
 										subjectCount ++;
 									}
 								}
-								
+
 								if(subjectCount != 0) {
 									cellResults = rowResults.createCell(lastColumnOutcome + subjectCount + 2);
 									cellResults.setCellValue("TOTAL");
 									cellResults.setCellStyle(combinedGrey);
 									
+									Row ResultsPCTG, TotalSUM;
+									Cell cellResultsPCTG, cellTotalSUM;
+									
+									int PCTGcount = 0;
 									for(int idk = 4; idk <= 8; idk ++) {
 										if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
 										
-										String SUM = "";
-										String PCTG = "";
-										cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + subjectCount + 2);
-										
-										CellReference start = new CellReference(idk, lastColumnOutcome + 2);
-										CellReference end = new CellReference(idk, lastColumnOutcome + subjectCount + 1);
-										
-										CellReference startTotal = new CellReference(8, lastColumnOutcome + 2);
-										CellReference endTotal = new CellReference(8, lastColumnOutcome + subjectCount + 1);
-										
-										if(start.formatAsString().equals(end.formatAsString())) {
-											SUM = "SUM(" + start.formatAsString() + ")";
+										int SUM = 0;
+										int TOTAL = 0;
+										for(int pctg = lastColumnOutcome + 2; pctg <= lastColumnOutcome + subjectCount + 1; pctg ++) {
+
+											ResultsPCTG = spreadsheet.getRow(idk);
+											cellResultsPCTG = ResultsPCTG.getCell(pctg);									
+											SUM += cellResultsPCTG.getNumericCellValue();
 											
-											PCTG = "(SUM(" + start.formatAsString() + ")/SUM(" + 
-													startTotal.formatAsString() + "))*100";
-										} else {
-											SUM = "SUM(" + start.formatAsString() + ":" + end.formatAsString() + ")";
+											TotalSUM = spreadsheet.getRow(8);
+											cellTotalSUM = TotalSUM.getCell(pctg);
+											TOTAL += cellTotalSUM.getNumericCellValue();
 											
-											PCTG = "(SUM(" + start.formatAsString() + ":" + end.formatAsString() + ")/SUM(" + 
-													startTotal.formatAsString() + ":" + endTotal.formatAsString() + "))*100";
 										}
-										
-										cellResults.setCellFormula(SUM);
-										cellResults.setCellStyle(borders);
+
+										cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + subjectCount + 2);
+										cellResults.setCellValue(SUM);
+										cellResults.setCellStyle(alignment);
 										if(idk == 8) cellResults.setCellStyle(bgLime);
 										
 										cellResults = spreadsheet.getRow(idk).createCell(lastColumnOutcome + subjectCount + 3);
 										
-										cellResults.setCellFormula(PCTG);
-										cellResults.setCellStyle(borders);
+										int PCTG = (int) Math.round((SUM * 100.0f) / TOTAL);
+										cellResults.setCellValue(PCTG);
+										cellResults.setCellStyle(alignment);
+										
+										String arr[] = subOutcomes.getKey().split(" ");
+										PCTGscore.put(arr[1] + PCTGcount, String.valueOf(PCTG));
+										
+										PCTGcount ++;
 									}
 									
 									
@@ -254,6 +259,68 @@ public class GenerateFile extends JFrame {
 				}
 			}
 			
+			// TABLE #3
+			Row row = spreadsheet.createRow(12);
+			Cell cell;
+
+			cell = row.createCell(4);
+			cell.setCellValue("ABET Outcome " + (i + 1));
+
+			CellRangeAddress cellRangeAddress = new CellRangeAddress(12, 12, 4, 3 + outcomeData.size());
+			spreadsheet.addMergedRegion(cellRangeAddress);
+			cell.setCellStyle(combinedLime);
+			
+			int col = 4;
+			for(Map.Entry<String, String> subOutcomes : outcomeData.entrySet()) {
+				
+				if(col == 4) {
+					// ABET score data is added
+					for(int idk = 13; idk <= 17; idk ++) {
+						if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
+						
+						if(idk == 13) {
+							cell = spreadsheet.getRow(idk).createCell(col);
+							cell.setCellStyle(borders);
+							
+						} else {
+							cell = spreadsheet.getRow(idk).createCell(col);
+							
+							String e2 = Integer.toString(idk - 14);
+							cell.setCellValue(ABETscore.get(e2));
+							cell.setCellStyle(borders);
+						}
+					}
+					
+				} else {
+					// Percentages by each suboutcome is added
+					
+					String outcomeName = subOutcomes.getKey();
+					String[] arr = outcomeName.split(" ");
+					int PCTGcount = 0;
+					for(int idk = 13; idk <= 17; idk ++) {
+						if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
+						
+						if(idk == 13) {
+							cell = spreadsheet.getRow(idk).createCell(col);
+
+							cell.setCellValue(arr[1]);
+							cell.setCellStyle(alignment);
+						} else { 
+							cell = spreadsheet.getRow(idk).createCell(col);
+						
+							if(PCTGscore.get(arr[1] + PCTGcount) != null) {
+								cell.setCellValue(PCTGscore.get(arr[1] + PCTGcount));
+							} else {
+								cell.setCellValue("-");
+							}
+							cell.setCellStyle(alignment);
+							PCTGcount ++;
+						}
+					}
+				}
+				
+				col ++;
+			}
 			
 			List<CellRangeAddress> mergedRegions = spreadsheet.getMergedRegions();
 			for (CellRangeAddress rangeAddress : mergedRegions) {
