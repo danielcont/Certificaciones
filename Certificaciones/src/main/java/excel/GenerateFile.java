@@ -40,7 +40,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import data.Codes;
 import data.DataOC;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unchecked"})
 public class GenerateFile extends JFrame {
 	// Other Classes
 	private ReportData reportData = new ReportData();
@@ -49,7 +49,6 @@ public class GenerateFile extends JFrame {
 	// JFrame Icon
 	private ImageIcon icon = new ImageIcon("C:\\Users\\contr\\OneDrive\\Documents\\FIME\\Ene-Dic2022\\FIME-icon.png");
 	
-	@SuppressWarnings("unchecked")
 	public void CreateExcelFile(ArrayList<Codes> outcomeCodes, ArrayList<DataOC> studentsData)  throws Exception {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet spreadsheet;
@@ -97,7 +96,7 @@ public class GenerateFile extends JFrame {
 		CellStyle combinedLime = workbook.createCellStyle();
 		combinedLime.cloneStyleFrom(bgLime);
 		combinedLime.setWrapText(true);
-
+		
 		Map<String, String> PCTGscore = new LinkedHashMap<String, String>();
 		Map<String, String> ABETscore = reportData.ABETscore;
 		
@@ -438,6 +437,168 @@ public class GenerateFile extends JFrame {
 		
 		FileLocationGUI(file);
 		
+	}
+	
+	public void CreateHistoricFile(String[][][] historic_data) throws Exception {
+
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		XSSFSheet spreadsheet;
+		
+		reportData.ABETData();
+		
+		// Set Cell Borders
+		CellStyle borders = workbook.createCellStyle();
+		borders.setBorderBottom(BorderStyle.MEDIUM);
+		borders.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+		borders.setBorderLeft(BorderStyle.MEDIUM);
+		borders.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+		borders.setBorderTop(BorderStyle.MEDIUM);
+		borders.setTopBorderColor(IndexedColors.BLACK.getIndex());
+		borders.setBorderRight(BorderStyle.MEDIUM);
+		borders.setRightBorderColor(IndexedColors.BLACK.getIndex());
+
+		// Enable new lines within Cells
+		CellStyle multipleLines = workbook.createCellStyle();
+		multipleLines.cloneStyleFrom(borders);
+		multipleLines.setWrapText(true);
+		
+		// Cell alignment
+		CellStyle alignment = workbook.createCellStyle();
+		alignment.cloneStyleFrom(multipleLines);
+		alignment.setAlignment(HorizontalAlignment.CENTER);
+		alignment.setVerticalAlignment(VerticalAlignment.CENTER);
+		
+		// Set background - grey color
+		CellStyle bgGrey = workbook.createCellStyle();
+		bgGrey.cloneStyleFrom(alignment);
+		bgGrey.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+		bgGrey.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+		// Set background - green color
+		CellStyle bgLime = workbook.createCellStyle();
+		bgLime.cloneStyleFrom(alignment);
+		bgLime.setFillForegroundColor(IndexedColors.LIME.index);
+		bgLime.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		
+		CellStyle combinedGrey = workbook.createCellStyle();
+		combinedGrey.cloneStyleFrom(bgGrey);
+		combinedGrey.setWrapText(true);
+		
+		CellStyle combinedLime = workbook.createCellStyle();
+		combinedLime.cloneStyleFrom(bgLime);
+		combinedLime.setWrapText(true);
+
+		// Last SHEET is generated
+		spreadsheet = workbook.createSheet("ABET");
+		spreadsheet.setDefaultColumnWidth(12);
+
+		Map<String, String> ABETscore = reportData.ABETscore;
+
+		Row row;
+		Cell cell, cellData;
+		for(int i = 0; i < historic_data.length; i ++) {
+			int x = i * 8;
+			row = spreadsheet.createRow(1 + x);
+
+			// ABET score data is added
+			for(int idk = 4 + x; idk <= 7 + x; idk ++) {
+				if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
+				
+				cell = spreadsheet.getRow(idk).createCell(1);
+				
+				String e2 = Integer.toString(idk - x - 4);
+				cell.setCellValue(ABETscore.get(e2));
+				cell.setCellStyle(borders);
+
+			}
+			
+			cell = row.createCell(2);
+			cell.setCellValue("ABET OUTCOMES RESULTS");
+			
+			CellRangeAddress cellRangeAddress = new CellRangeAddress(1 + x, 1 + x, 2, 16);
+			spreadsheet.addMergedRegion(cellRangeAddress);
+			cell.setCellStyle(combinedGrey);
+			
+			int col = 2;
+			for(int cdc = 0; cdc < 7; cdc ++) {
+				Map<String, String> outcomeData = reportData.AllOutcomesData.get(cdc);
+				
+				int lastCol = 0;
+				int column_index = 0;
+				for(Map.Entry<String, String> subOutcomes : outcomeData.entrySet()) {
+
+					String outcomeName = subOutcomes.getKey();
+					String[] arr = outcomeName.split(" ");
+					
+					if(lastCol == 0) {
+						if(spreadsheet.getRow(2 + x) == null) spreadsheet.createRow(2 + x);
+						
+						cellData = spreadsheet.getRow(2 + x).createCell(col);
+						cellData.setCellValue(outcomeName);
+						cellData.setCellStyle(combinedLime);
+
+						if(outcomeData.size() > 2) {
+							cellRangeAddress = new CellRangeAddress(2 + x, 2 + x, col, col + outcomeData.size() - 2);
+							spreadsheet.addMergedRegion(cellRangeAddress);
+						}
+						
+					} else {
+						
+						int row_index = 0;
+						for(int idk = 3 + x; idk <= 7 + x; idk ++) {
+							if(spreadsheet.getRow(idk) == null) spreadsheet.createRow(idk);
+							
+							if(idk == 3 + x) {
+								cell = spreadsheet.getRow(idk).createCell(col);
+
+								cell.setCellValue(arr[1]);
+								cell.setCellStyle(alignment);
+							} else { 
+								cell = spreadsheet.getRow(idk).createCell(col);
+								
+								cell.setCellValue(historic_data[i][row_index][column_index]);
+								cell.setCellStyle(alignment);
+								row_index ++;
+							}
+						}
+						col ++;
+						column_index ++;
+					}
+					lastCol ++;
+				}
+			}	
+		}
+		
+		List<CellRangeAddress> mergedRegions = spreadsheet.getMergedRegions();
+		for (CellRangeAddress rangeAddress : mergedRegions) {
+		    RegionUtil.setBorderTop(BorderStyle.MEDIUM, rangeAddress, spreadsheet);
+		    RegionUtil.setBorderLeft(BorderStyle.MEDIUM, rangeAddress, spreadsheet);
+		    RegionUtil.setBorderRight(BorderStyle.MEDIUM, rangeAddress, spreadsheet);
+		    RegionUtil.setBorderBottom(BorderStyle.MEDIUM, rangeAddress, spreadsheet);
+		}
+		
+		// Create unique file name
+		DateFormat dateFormat = new SimpleDateFormat("dd MM yyyy - HH mm ss");
+		Date date = new Date();
+		String strDate = dateFormat.format(date);
+		String fileName = "ABETHistoric-" + strDate + ".xlsx";
+		
+		// Create Directory Path
+		String PATH = "C:/ABET/ABET-Historic/";
+		File directory = new File(PATH);
+		
+		// Create a directory if it does not exist
+		if(!directory.exists()) {
+			directory.mkdir();
+		}
+		
+		File file = new File(PATH + "/" + fileName);
+		FileOutputStream out = new FileOutputStream(file);
+		workbook.write(out);
+		out.close();
+		workbook.close();
+		
+		FileLocationGUI(file);
 	}
 	
 	// 
