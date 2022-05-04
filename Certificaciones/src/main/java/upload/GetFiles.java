@@ -7,7 +7,6 @@ package upload;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,12 +49,12 @@ public class GetFiles extends JFrame implements ActionListener {
 					fileSelected_label = new JLabel("Archivo Seleccionado:"),
 					fileName_label = new JLabel("");
 	// JButton
-	private JButton navigate_button, process_button, navigateOutcomes_button; // Button To Navigate Folder and Process Files
+	private JButton navigate_button, process_button, navigateOutcomes_button, navigateReports_button, processHistoric_button; // Button To Navigate Folder and Process Files
 	// JPanel
-	private JPanel load_panel, list_panel, assignments_panel, loadOutcomes_panel, outcomes_panel;
+	private JPanel load_panel, assignments_panel, loadOutcomes_panel, outcomes_panel, historic_panel;
 	// JList
-	private JList<File> fileList;
-	private DefaultListModel<File> fileListModel, fileListModelOutcomes;
+	private JList<File> fileList, fileList_historic;
+	private DefaultListModel<File> fileListModel, fileListModelOutcomes, fileListModelHistoric;
 	
 	// Main
 	public static void main(String[] args) {
@@ -71,12 +70,20 @@ public class GetFiles extends JFrame implements ActionListener {
 
 		Boolean old = UIManager.getBoolean("FileChooser.readOnly");
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
+		
         final JFileChooser fc = new JFileChooser();
         final FileListAccessory accessory = new FileListAccessory(fc);
         final DefaultListModel model = accessory.getModel();
+        
+        final JFileChooser fc_historic = new JFileChooser();
+        final FileListAccessory accessoryReports = new FileListAccessory(fc_historic);
+        final DefaultListModel model_historic = accessoryReports.getModel();
 
         fileListModel = new DefaultListModel<>();
 		fileList = new JList(fileListModel);
+		
+		fileListModelHistoric = new DefaultListModel<>();
+		fileList_historic = new JList(fileListModelHistoric);
 		
         fileListModelOutcomes = new DefaultListModel<>();
 		
@@ -85,13 +92,13 @@ public class GetFiles extends JFrame implements ActionListener {
 		load_panel = new JPanel() {
 			@Override
 			public Dimension getPreferredSize() {
-				return new Dimension (350, 70);
+				return new Dimension (350, 250);
 			};
 		};
-		load_panel.setBorder(BorderFactory.createTitledBorder("Seleccionar Archivos"));
+		load_panel.setBorder(BorderFactory.createTitledBorder("Registro de Calificaciones"));
 		
 		// 'Choose File' Label
-		JLabel chooseMultipleFiles_label = new JLabel("Seleccione los Archivos:");
+		JLabel chooseMultipleFiles_label = new JLabel("Cargar Archivos:");
 		chooseMultipleFiles_label.setFont(new Font("verdana", Font.PLAIN, 14));
 		load_panel.add(chooseMultipleFiles_label);
 		
@@ -107,6 +114,10 @@ public class GetFiles extends JFrame implements ActionListener {
 		            public void run() {
 		                fc.setAccessory(accessory);
 		                fc.setMultiSelectionEnabled(true);
+		                
+						FileFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
+						fc.setAcceptAllFileFilterUsed(false); // Disables "All Files" option
+		           	 	fc.setFileFilter(filter);
 
 		                int open = fc.showOpenDialog(fc);
 		                if (open == JFileChooser.APPROVE_OPTION) {
@@ -124,24 +135,14 @@ public class GetFiles extends JFrame implements ActionListener {
 			}
 		}); // File Navigator Functionality Added To This Button
 		
-
-		// Create 'List Files' Panel
-		list_panel = new JPanel(new FlowLayout()) {
-			@Override
-			public Dimension getPreferredSize() {
-				return new Dimension (350, 215);
-			};
-		};
-		list_panel.setBorder(BorderFactory.createTitledBorder("Lista de Archivos Seleccionados"));
-		
 		// Adding ScrollPane
 		JScrollPane list_scrollPane = new JScrollPane(fileList);
 		list_scrollPane.setPreferredSize(new Dimension(290, 150));
-		list_panel.add(list_scrollPane);
+		load_panel.add(list_scrollPane);
 		
 		// Process Button
 		process_button = new JButton("Procesar");
-		list_panel.add(process_button, BorderLayout.CENTER);
+		//load_panel.add(process_button, BorderLayout.CENTER);
 		process_button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -149,6 +150,7 @@ public class GetFiles extends JFrame implements ActionListener {
 			}
             
 		});
+		load_panel.add(process_button);
 		
 		if(fileListModel.isEmpty()  && fileListModelOutcomes.isEmpty()) process_button.setEnabled(false);
 		
@@ -156,10 +158,10 @@ public class GetFiles extends JFrame implements ActionListener {
 		loadOutcomes_panel = new JPanel() {
 			@Override
 			public Dimension getPreferredSize() {
-				return new Dimension (350, 280);
+				return new Dimension (350, 150);
 			};
 		};
-		loadOutcomes_panel.setBorder(BorderFactory.createTitledBorder("Seleccionar Lista de Outcomes"));
+		loadOutcomes_panel.setBorder(BorderFactory.createTitledBorder("Lista de Outcomes"));
 		
 		// 'Choose File' Label
 		JLabel chooseFile_label = new JLabel("Seleccione el Archivo:");
@@ -232,10 +234,75 @@ public class GetFiles extends JFrame implements ActionListener {
 		loadOutcomes_panel.add(successLoadingFile_label);
 		successLoadingFile_label.setVisible(false);
 		
+		
+		// 'Histórico' Pane
+		historic_panel = new JPanel() {
+			@Override
+			public Dimension getPreferredSize() {
+				return new Dimension (350, 250);
+			};
+		};
+		historic_panel.setBorder(BorderFactory.createTitledBorder("Registro Histórico"));
+
+		JLabel chooseMultipleFiles_label2 = new JLabel("Cargar Archivos:");
+		chooseMultipleFiles_label2.setFont(new Font("verdana", Font.PLAIN, 14));
+		historic_panel.add(chooseMultipleFiles_label2);
+		
+		navigateReports_button = new JButton("Buscar...");
+		historic_panel.add(navigateReports_button);
+		navigateReports_button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+		        SwingUtilities.invokeLater(new Runnable() {
+		            @Override
+		            public void run() {
+		                fc_historic.setAccessory(accessoryReports);
+		                fc_historic.setMultiSelectionEnabled(true);
+		                
+						FileFilter filter = new FileNameExtensionFilter("Excel Files", "xls", "xlsx", "xml", "xlsm");
+						fc_historic.setAcceptAllFileFilterUsed(false); // Disables "All Files" option
+		           	 	fc_historic.setFileFilter(filter);
+
+		                int open = fc_historic.showOpenDialog(fc_historic);
+		                if (open == JFileChooser.APPROVE_OPTION) {
+		                	fileListModelHistoric.removeAllElements();
+		                	
+		                	if (model_historic.isEmpty()) processHistoric_button.setEnabled(false);
+		                	else processHistoric_button.setEnabled(true);
+		                	
+		                    for (int i = 0; i < model_historic.getSize(); i++) {
+		                        fileListModelHistoric.addElement((File) model_historic.getElementAt(i));
+		                    }
+		                }
+		            }
+		        });
+			}
+		}); // File Navigator Functionality Added To This Button
+		
+		// Adding ScrollPane
+		JScrollPane listHistoric_scrollPane = new JScrollPane(fileList_historic);
+		listHistoric_scrollPane.setPreferredSize(new Dimension(290, 150));
+		historic_panel.add(listHistoric_scrollPane);
+		
+		// Process Historic Button
+		processHistoric_button = new JButton("Procesar");
+		//load_panel.add(process_button, BorderLayout.CENTER);
+		processHistoric_button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			    read.WaitingUI(model_historic, 3);
+			}
+            
+		});
+		historic_panel.add(processHistoric_button);
+
+		
+		
 		// Add Panels to TabbedPane and Assign Frame a Position
 		frame.setVisible(true);
-		frame.setSize(385, 365);
-		frame.setMinimumSize(new Dimension(385, 365));
+		frame.setSize(385, 490);
+		frame.setMinimumSize(new Dimension(385, 490));
 		frame.setLocationRelativeTo(null);
 		frame.setIconImage(icon.getImage());
 		
@@ -247,7 +314,6 @@ public class GetFiles extends JFrame implements ActionListener {
 			};
 		};
 		assignments_panel.add(load_panel, BorderLayout.NORTH);
-		assignments_panel.add(list_panel, BorderLayout.CENTER);
 		
 		outcomes_panel = new JPanel() {
 			@Override
@@ -256,9 +322,10 @@ public class GetFiles extends JFrame implements ActionListener {
 			};
 		};
 		outcomes_panel.add(loadOutcomes_panel);
+		outcomes_panel.add(assignments_panel);
 
 		tabbedPane.addTab("Lista Outcomes", outcomes_panel);
-		tabbedPane.addTab("Calificaciones", assignments_panel);
+		tabbedPane.addTab("Histórico", historic_panel);
 		
 		frame.add(tabbedPane);
 	}
