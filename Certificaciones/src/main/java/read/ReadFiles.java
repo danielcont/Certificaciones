@@ -125,7 +125,6 @@ public class ReadFiles {
 	}
 	
 	private ArrayList<Codes> OutcomesList(DefaultListModel<File> model) throws Exception {
-		// ArrayList<Codes> items = new ArrayList<Codes>();
 		// Start Reading the File
 		// 1. File
 		// Is Important to Know the # of Workbooks
@@ -210,6 +209,62 @@ public class ReadFiles {
 		
 		return items;
 	}
+
+	private void HistoricReport(DefaultListModel<File> model) throws Exception {
+
+		// Start Reading the File
+		// 1. File
+		String[][][] historic_data = new String[model.getSize()][4][15];
+		for(int i = 0; i < model.getSize(); i++) {
+			XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(model.getElementAt(i).toString()));
+			
+			int numberOfSheets = workbook.getNumberOfSheets(); // Getting the LAST sheet
+			XSSFSheet sheet = workbook.getSheetAt(numberOfSheets - 1);
+			
+			// Iterate through each rows one by one
+			Iterator<Row> rowIterator = sheet.iterator();
+			int row_index = 0;
+			while(rowIterator.hasNext()) {
+
+				Row row = rowIterator.next();
+				
+				// For each row, iterate through all the collumns
+				Iterator<Cell> cellIterator = row.cellIterator();
+				
+				if(row.getRowNum() == 3) {
+					
+				} else if(row.getRowNum() >= 4) {
+
+					int column_index = 0;
+					while(cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						
+						 if(cell.getColumnIndex() >= 2) {
+
+								switch(cell.getCellType()) {
+								case NUMERIC:
+									historic_data[i][row_index][column_index] = Double.toString(cell.getNumericCellValue());
+									break;
+									
+								case STRING:
+									historic_data[i][row_index][column_index] = cell.getStringCellValue();
+									break;
+									
+								default:
+									break;
+									
+								}
+								column_index ++;
+						 }
+					}
+					row_index ++;
+				}
+			}
+		}
+		
+		generateReport.CreateHistoricFile(historic_data);
+		
+	}
 	
 	public boolean WaitingUI(DefaultListModel<File> model, int oc) {
 		JDialog dialog = new JDialog();
@@ -234,6 +289,8 @@ public class ReadFiles {
 					OutcomesList(model);
 	    			isValid = true;
 	    			break;
+	    		case 3:
+	    			HistoricReport(model);
 	    	}
 		
 		} catch(Exception e) {
